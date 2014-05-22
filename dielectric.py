@@ -1,4 +1,5 @@
 from scipy.spatial import Delaunay
+from scipy.special import jn, hankel1
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -28,14 +29,17 @@ class homoCircle:
 	Class that defines the geometry and refractive index distribution
 	of the circular and homogeneous cavity.
 	"""
-	def __init__(self, N, k, nc, no, r0):
+	def __init__(self, N, k, nc, no, r0, M):
 		self.N = N
 		self.k = k
 		self.nc = nc
 		self.no = no
 		self.r0 = r0
+		self.Mmax = M
 		self.meshDistribution(N)
 		self.triangulate()
+		self.plotMesh()
+		self.computeScatteringMatrix(self.Mmax)
 
 	def refIndex(self, r, theta):
 		if r < self.r0:
@@ -84,17 +88,18 @@ class homoCircle:
 			# -- Areas
 			a = np.linalg.norm(self.points[self.triangulation.simplices][i,0,:]-self.points[self.triangulation.simplices][i,1,:])
 			b = np.linalg.norm(self.points[self.triangulation.simplices][i,1,:]-self.points[self.triangulation.simplices][i,2,:])
-			c = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,-1,:])
-			s = (a+b+c)/2
+			c = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,0,:])
+			s = (a+b+c)/2.0
 			self.areas = np.insert(self.areas, len(self.areas),np.sqrt(s*(s-a)*(s-b)*(s-c)))
+			
 
 			# -- Center points
 			a = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,1,:])
 			b = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,0,:])
 			c = np.linalg.norm(self.points[self.triangulation.simplices][i,0,:]-self.points[self.triangulation.simplices][i,1,:])
-			x = a*(b*b+c*c-a*a)
-			y = b*(c*c+a*a-b*b)
-			z = c*(a*a+b*b-c*c)
+			x = 1
+			z = 1
+			y = 1
 			sumXYZ = a*x+b*y+c*z
 			alpha = a*x/sumXYZ
 			beta = b*y/sumXYZ
@@ -106,10 +111,30 @@ class homoCircle:
 				+gamma*self.points[self.triangulation.simplices][i,2,:], axis=0)
 
 		plt.plot(self.centerPoints[:,0], self.centerPoints[:,1], 'ro')
-		print(self.triangulation.simplices.shape)
-		print(self.points[self.triangulation.simplices])
 		plt.show()
 
+	def computeScatteringMatrix(self,Mmax):
+		# -- Prepare the vector and matrix
+		b = np.zeros((self.nTriangles), dtype=np.complex)
+		M = np.zeros((self.nTriangles,self.nTriangles), dtype=np.complex)
+
+		for i in range(self.nTriangles):
+			b[i] = jn(Mmax, np.linalg.norm(self.centerPoints[i]))*np.exp(1j*Mmax*np.arctan2(self.centerPoints[i,0],self.centerPoints[i,1]))
+
+			for j in range(self.nTriangles):
+				if (i!=j):
+					d = np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
+					phi1 = np.arctan2(self.centerPoints[i,0],self.centerPoints[i,1])
+					phi2 = np.arctan2(self.centerPoints[j,0],self.centerPoints[j,1])
+					M[i,j] = hankel1(Mmax, d)*np.exp(1j*Mmax*(phi1-phi2))*self.areas[j]
+
+		
+		x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
+		
+		fig = plt.figure()
+		plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x), shading="gouraud")
+		plt.show()
+
+
 if __name__ == '__main__':
-	y = homoCircle(100, 1.0, 2.0, 1.0, 1.0)
-	y.plotMesh()
+	y = homoCircle(1000, 1.0, 2.0, 1.0, 1.0, 0)
