@@ -97,9 +97,9 @@ class homoCircle:
 			a = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,1,:])
 			b = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,0,:])
 			c = np.linalg.norm(self.points[self.triangulation.simplices][i,0,:]-self.points[self.triangulation.simplices][i,1,:])
-			x = 1
-			z = 1
-			y = 1
+			x = 1/a
+			z = 1/b
+			y = 1/c
 			sumXYZ = a*x+b*y+c*z
 			alpha = a*x/sumXYZ
 			beta = b*y/sumXYZ
@@ -132,7 +132,7 @@ class homoCircle:
 		x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
 		
 		fig = plt.figure()
-		plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x), shading="gouraud")
+		plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
 		plt.show()
 
 
