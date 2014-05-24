@@ -57,8 +57,6 @@ class homoCircle:
 		for i in range(N*N):
 			self.points = np.insert(self.points, len(self.points), [self.boundary(theta[i]), theta[i]], axis=0)
 
-		self.points = np.insert(self.points, len(self.points), [0,0], axis=0)
-
 		for j in range(len(self.points)):
 			r = self.points[j,0]
 			theta = self.points[j,1]
@@ -92,11 +90,10 @@ class homoCircle:
 			s = (a+b+c)/2.0
 			self.areas = np.insert(self.areas, len(self.areas),np.sqrt(s*(s-a)*(s-b)*(s-c)))
 			
-
 			# -- Center points
-			a = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,1,:])
-			b = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,0,:])
-			c = np.linalg.norm(self.points[self.triangulation.simplices][i,0,:]-self.points[self.triangulation.simplices][i,1,:])
+			a = np.linalg.norm(self.points[self.triangulation.simplices][i,0,:]-self.points[self.triangulation.simplices][i,1,:])
+			b = np.linalg.norm(self.points[self.triangulation.simplices][i,1,:]-self.points[self.triangulation.simplices][i,2,:])
+			c = np.linalg.norm(self.points[self.triangulation.simplices][i,2,:]-self.points[self.triangulation.simplices][i,0,:])
 			x = 1/a
 			z = 1/b
 			y = 1/c
@@ -115,49 +112,48 @@ class homoCircle:
 
 	def computeScatteringMatrix(self,Mmax):
 		# -- Prepare scattering matrix. 
-		scatMat = np.zeros((2*10+1,2*10+1), dtype=np.complex)
+		#scatMat = np.zeros((2*10+1,2*10+1), dtype=np.complex)
 
 		# -- Prepare the vector and matrix
 		b = np.zeros((self.nTriangles), dtype=np.complex)
 		M = np.zeros((self.nTriangles,self.nTriangles), dtype=np.complex)
 
 		for i in range(self.nTriangles):
-			b[i] = jn(Mmax, np.linalg.norm(self.centerPoints[i]))*np.exp(1j*Mmax*np.arctan2(self.centerPoints[i,0],self.centerPoints[i,1]))
+			b[i] = jn(Mmax, np.linalg.norm(self.centerPoints[i]))*np.exp(1j*Mmax*np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]))
 
 			for j in range(self.nTriangles):
 				if (i!=j):
 					d = np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
-					phi1 = np.arctan2(self.centerPoints[i,0],self.centerPoints[i,1])
-					phi2 = np.arctan2(self.centerPoints[j,0],self.centerPoints[j,1])
-					M[i,j] = 1j*hankel1(Mmax, d)*np.exp(1j*Mmax*(phi1-phi2))*self.areas[j]/4.0
+					phi1 = np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0])
+					phi2 = np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0])
+					M[i,j] = self.k*self.k*1j*hankel1(Mmax, d)*np.exp(1j*Mmax*(phi1-phi2))*self.areas[j]/4.0
 
-		
 		x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
 
 		# -- We compute the corresponding line of the scattering matrix.
-		for i in range(2*10+1):
-			m = i-10
+		for i in range(1):
+			m = i-0
 			Smm = 0.0
 			for j in range(self.nTriangles):
 				d = np.linalg.norm(self.centerPoints[j])
-				phi = np.arctan2(self.centerPoints[j,0],self.centerPoints[j,1])
-				Smm += jn(m,d)*np.exp(-1j*m*phi)*x[j]*self.areas[j]
+				phi = np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0])
+				Smm += *jn(m,d)*np.exp(-1j*m*phi)*x[j]*self.areas[j]
 
-			scatMat[i,0] = -1j*Smm/2.0
-			scatMat[i,0] += (1.0 if m==0 else 0.0)
+			Smm = -self.k*self.k*1j*Smm/2.0
+			Smm += (1.0 if m==0 else 0.0)
 		
-		print(scatMat)
+		print(Smm)
 		fig = plt.figure()
 		plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
 		plt.show()
 
 
 if __name__ == '__main__':
-	y = homoCircle(700, 1.0, 2.0, 1.0, 1.0, 0)
+	y = homoCircle(500, 1.0, 2.0, 1.0, 1.0, 0)
 	zc = 2.0
 	zo = 1.0
-	for i in range(2*10+1):
-		m = i-10
+	for i in range(1):
+		m = i-0
 		num = -(2.0*jvp(m,zc)*hankel2(m,zo)-jn(m,zc)*h2vp(m,zo))
 		den = 2.0*jvp(m,zc)*hankel1(m,zo)-jn(m,zc)*h1vp(m,zo)
 		print(num/den)
