@@ -23,6 +23,8 @@ class Dielectric:
 		-
 	"""
 
+def user_mod(value, modulo):
+	return value-modulo*int(np.floor(value/modulo))
 
 class homoCircle:
 	"""
@@ -39,7 +41,6 @@ class homoCircle:
 		self.meshDistribution(N)
 		self.triangulate()
 		self.plotMesh()
-		self.computeScatteringMatrix(self.Mmax)
 
 	def refIndex(self, r, theta):
 		if r < self.r0:
@@ -112,48 +113,62 @@ class homoCircle:
 
 	def computeScatteringMatrix(self,Mmax):
 		# -- Prepare scattering matrix. 
-		#scatMat = np.zeros((2*10+1,2*10+1), dtype=np.complex)
+		scatMat = np.zeros((2*Mmax+1,2*Mmax+1), dtype=np.complex)
 
-		# -- Prepare the vector and matrix
-		b = np.zeros((self.nTriangles), dtype=np.complex)
-		M = np.zeros((self.nTriangles,self.nTriangles), dtype=np.complex)
+		for n in range(2*Mmax+1):
+			m = n-Mmax
+			# -- Prepare the vector and matrix
+			b = np.zeros((self.nTriangles), dtype=np.complex)
+			M = np.zeros((self.nTriangles,self.nTriangles), dtype=np.complex)
+	
+			for i in range(self.nTriangles):
+				b[i] = jn(m, np.linalg.norm(self.centerPoints[i]))*np.exp(1j*m*user_mod(np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]),2*np.pi))
+	
+				for j in range(self.nTriangles):
+					if (i!=j):
+						d = np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
+						phi1 = user_mod(np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]),2*np.pi)
+						phi2 = user_mod(np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0]),2*np.pi)
+						M[i,j] = 3.0*self.k*self.k*1j*hankel1(0, d)*self.areas[j]/4.0
+	
+			x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
+	
+			# -- We compute the corresponding line of the scattering matrix.
+			for k in range(2*Mmax+1):
+				mp = k-Mmax
+				Smm = 0.0
+				for h in range(self.nTriangles):
+					d = np.linalg.norm(self.centerPoints[h])
+					phi = user_mod(np.arctan2(self.centerPoints[h,1],self.centerPoints[h,0]),2*np.pi)
+					Smm += 3.0*jn(mp,d)*np.exp(-1j*mp*phi)*x[h]*self.areas[h]
 
-		for i in range(self.nTriangles):
-			b[i] = jn(Mmax, np.linalg.norm(self.centerPoints[i]))*np.exp(1j*Mmax*np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]))
+				Smm = self.k*self.k*1j*Smm/2.0
+				Smm += (1.0 if mp==m else 0.0)
+				scatMat[k,n] = Smm
 
-			for j in range(self.nTriangles):
-				if (i!=j):
-					d = np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
-					phi1 = np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0])
-					phi2 = np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0])
-					M[i,j] = self.k*self.k*1j*hankel1(Mmax, d)*np.exp(1j*Mmax*(phi1-phi2))*self.areas[j]/4.0
-
-		x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
-
-		# -- We compute the corresponding line of the scattering matrix.
-		for i in range(1):
-			m = i-0
-			Smm = 0.0
-			for j in range(self.nTriangles):
-				d = np.linalg.norm(self.centerPoints[j])
-				phi = np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0])
-				Smm += *jn(m,d)*np.exp(-1j*m*phi)*x[j]*self.areas[j]
-
-			Smm = -self.k*self.k*1j*Smm/2.0
-			Smm += (1.0 if m==0 else 0.0)
-		
-		print(Smm)
-		fig = plt.figure()
-		plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
-		plt.show()
-
-
+		return scatMat
+				#fig = plt.figure()
+				#plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
+				#plt.show()
+	
+	
 if __name__ == '__main__':
-	y = homoCircle(500, 1.0, 2.0, 1.0, 1.0, 0)
+	y = homoCircle(100, 1.0, 2.0, 1.0, 1.0, 10)
+	scatMat = y.computeScatteringMatrix(y.Mmax)
+
+	analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)
 	zc = 2.0
 	zo = 1.0
-	for i in range(1):
-		m = i-0
+	for i in range(2*y.Mmax+1):
+		m = i-y.Mmax
 		num = -(2.0*jvp(m,zc)*hankel2(m,zo)-jn(m,zc)*h2vp(m,zo))
 		den = 2.0*jvp(m,zc)*hankel1(m,zo)-jn(m,zc)*h1vp(m,zo)
-		print(num/den)
+		analScatMat[i] = num/den
+
+	print(np.diag(scatMat))
+	print(analScatMat)
+	print(np.diag(scatMat)-analScatMat)
+	print(np.amax(np.abs(np.diag(analScatMat)-scatMat)))
+	plt.figure()
+	plt.pcolor(np.abs(np.diag(analScatMat)-scatMat))
+	plt.show()
