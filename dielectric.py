@@ -2,6 +2,16 @@ from scipy.spatial import Delaunay
 from scipy.special import jn, jvp, hankel1, hankel2, h1vp, h2vp
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+# Setting the rc parameters.
+rcParams['text.usetex'] = True
+rcParams['text.latex.preamble'] = r'\usepackage[charter]{mathdesign}'
+rcParams['font.size'] = 10
+#rcParams['axes.labelsize'] = '10'
+#rcParams['xtick.labelsize'] = '10'
+#rcParams['ytick.labelsize'] = '10'
+rcParams['legend.numpoints'] = 3
 
 class Dielectric:
 	"""
@@ -130,19 +140,7 @@ class homoCircle:
 						d = self.k*np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
 						phi1 = user_mod(np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]),2*np.pi)
 						phi2 = user_mod(np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0]),2*np.pi)
-						M[i,j] = self.potential*self.k*self.k*1j*hankel1(0,d)*self.areas[j]/4.0
-
-						# Test if triangle has boundary simplex.
-						if any(self.triangulation.neighbors[j] == -1):
-							# If yes, determine which simplex is the boundary one and determine its midpoint.
-							midpoint = sum(self.points[self.triangulation.simplices[j][self.triangulation.neighbors[j]!=-1]])/2
-							r = np.linalg.norm(self.centerPoints[i])
-							rp = np.linalg.norm(midpoint)
-							dist = np.linalg.norm(midpoint-self.centerPoints[i])
-							phi = phi1
-							phip = user_mod(np.arctan2(midpoint[1],midpoint[0]),2*np.pi)
-							M[i,j] += jn(0,rp)*(1j*self.k/8)*(2*r-rp*np.cos(phi-phip))/(np.sqrt(r*r+rp*rp-2*r*rp*np.cos(phi-phip)))*hankel1(1,self.k*dist)
-							M[i,j] -= self.nc*self.nc/(self.no*self.no)*(-1j/4)*hankel1(0,self.k*dist)*(-self.k*jn(1,self.k*rp))
+						M[i,j] = self.potential*self.k*self.k*1j*hankel1(0, d)*self.areas[j]/4.0
 	
 			x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
 			#fig = plt.figure()
@@ -166,7 +164,7 @@ class homoCircle:
 	
 	
 if __name__ == '__main__':
-	mesh = [100,200,300,500,1000,2000]
+	mesh = [25, 50, 100, 200, 300,500,1000,2000]
 	convergence = np.zeros((0,2))
 	for nPoints in mesh:
 		y = homoCircle(nPoints, 1.0, 1.5, 1.0, 1.0, 0)
@@ -175,7 +173,7 @@ if __name__ == '__main__':
 		analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)
 		zc = y.nc*y.k
 		zo = y.no*y.k
-		eta = y.no/y.nc
+		eta = y.nc/y.no
 		for i in range(2*y.Mmax+1):
 			m = i-y.Mmax
 			num = -(eta*jvp(m,zc)*hankel2(m,zo)-jn(m,zc)*h2vp(m,zo))
@@ -187,6 +185,20 @@ if __name__ == '__main__':
 		# -- Mean areas of triangles
 		convergence = np.insert(convergence, len(convergence), [np.mean(y.areas), err],axis=0)
 
-	plt.figure()
-	plt.semilogy(convergence[:,0],convergence[:,1])
-	plt.show()
+	fig1 = plt.figure(figsize=(5,3))
+	ax1 = fig1.add_subplot(111)
+	plt.plot(convergence[:,0],convergence[:,1], ls='--', marker='o', label=r"Numerical Error")
+
+	p = np.polyfit(np.log(convergence[:,0]),np.log(convergence[:,1]),1)
+	ynew = np.exp(np.polyval(p,np.log(convergence[:,0])))
+	plt.plot(convergence[:,0],ynew, label=r"Power-law fit: $\alpha=%0.2g$" %(p[0]))
+
+	ax1.set_xscale('log')
+	ax1.set_yscale('log')
+	ax1.set_xlabel('Average area of triangles')
+	ax1.set_ylabel("Absolute error on $S_{00}$")
+	ax1.invert_xaxis()
+	ax1.grid(True)
+	ax1.legend(loc=0)
+	print(p)
+	plt.savefig("convergenceAnalysis.pdf", bbox_inches='tight')
