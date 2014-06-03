@@ -140,7 +140,19 @@ class homoCircle:
 						d = self.k*np.linalg.norm(self.centerPoints[i]-self.centerPoints[j])
 						phi1 = user_mod(np.arctan2(self.centerPoints[i,1],self.centerPoints[i,0]),2*np.pi)
 						phi2 = user_mod(np.arctan2(self.centerPoints[j,1],self.centerPoints[j,0]),2*np.pi)
-						M[i,j] = self.potential*self.k*self.k*1j*hankel1(0, d)*self.areas[j]/4.0
+						M[i,j] = self.potential*self.k*self.k*1j*hankel1(0,d)*self.areas[j]/4.0
+
+						# Test if triangle has boundary simplex.
+						if any(self.triangulation.neighbors[j] == -1):
+							# If yes, determine which simplex is the boundary one and determine its midpoint.
+							midpoint = sum(self.points[self.triangulation.simplices[j][self.triangulation.neighbors[j]!=-1]])/2
+							r = np.linalg.norm(self.centerPoints[i])
+							rp = np.linalg.norm(midpoint)
+							dist = np.linalg.norm(midpoint-self.centerPoints[i])
+							phi = phi1
+							phip = user_mod(np.arctan2(midpoint[1],midpoint[0]),2*np.pi)
+							M[i,j] += jn(0,rp)*(1j*self.k/8)*(2*r-rp*np.cos(phi-phip))/(np.sqrt(r*r+rp*rp-2*r*rp*np.cos(phi-phip)))*hankel1(1,self.k*dist)
+							M[i,j] -= self.nc*self.nc/(self.no*self.no)*(-1j/4)*hankel1(0,self.k*dist)*(-self.k*jn(1,self.k*rp))
 	
 			x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
 			#fig = plt.figure()
@@ -173,7 +185,7 @@ if __name__ == '__main__':
 		analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)
 		zc = y.nc*y.k
 		zo = y.no*y.k
-		eta = y.nc/y.no
+		eta = y.no/y.nc
 		for i in range(2*y.Mmax+1):
 			m = i-y.Mmax
 			num = -(eta*jvp(m,zc)*hankel2(m,zo)-jn(m,zc)*h2vp(m,zo))
