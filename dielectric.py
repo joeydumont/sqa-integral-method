@@ -2,16 +2,6 @@ from scipy.spatial import Delaunay
 from scipy.special import jn, jvp, hankel1, hankel2, h1vp, h2vp
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
-
-# Setting the rc parameters.
-rcParams['text.usetex'] = True
-rcParams['text.latex.preamble'] = r'\usepackage[charter]{mathdesign}'
-rcParams['font.size'] = 10
-#rcParams['axes.labelsize'] = '10'
-#rcParams['xtick.labelsize'] = '10'
-#rcParams['ytick.labelsize'] = '10'
-rcParams['legend.numpoints'] = 3
 
 class Dielectric:
 	"""
@@ -176,7 +166,7 @@ class homoCircle:
 	
 	
 if __name__ == '__main__':
-	mesh = [25, 50, 100, 200, 300,500,1000,2000]
+	mesh = [100,200,300,500,1000,2000]
 	convergence = np.zeros((0,2))
 	for nPoints in mesh:
 		y = homoCircle(nPoints, 1.0, 1.5, 1.0, 1.0, 0)
@@ -197,20 +187,6 @@ if __name__ == '__main__':
 		# -- Mean areas of triangles
 		convergence = np.insert(convergence, len(convergence), [np.mean(y.areas), err],axis=0)
 
-	fig1 = plt.figure(figsize=(5,3))
-	ax1 = fig1.add_subplot(111)
-	plt.plot(convergence[:,0],convergence[:,1], ls='--', marker='o', label=r"Numerical Error")
-
-	p = np.polyfit(np.log(convergence[:,0]),np.log(convergence[:,1]),1)
-	ynew = np.exp(np.polyval(p,np.log(convergence[:,0])))
-	plt.plot(convergence[:,0],ynew, label=r"Power-law fit: $\alpha=%0.2g$" %(p[0]))
-
-	ax1.set_xscale('log')
-	ax1.set_yscale('log')
-	ax1.set_xlabel('Average area of triangles')
-	ax1.set_ylabel("Absolute error on $S_{00}$")
-	ax1.invert_xaxis()
-	ax1.grid(True)
-	ax1.legend(loc=0)
-	print(p)
-	plt.savefig("convergenceAnalysis.pdf", bbox_inches='tight')
+	plt.figure()
+	plt.semilogy(convergence[:,0],convergence[:,1])
+	plt.show()
