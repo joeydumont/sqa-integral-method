@@ -88,8 +88,12 @@ class homoCircle:
 
 	def plotMesh(self):
 		self.nTriangles = self.triangulation.simplices.shape[0]
-		#plt.triplot(self.points[:,0],self.points[:,1], self.triangulation.simplices.copy())
-		#plt.plot(self.points[:,0], self.points[:,1], 'o')
+		fig1 = plt.figure(figsize=(3,3))
+		ax1 = fig1.add_subplot(111)
+		ax1.axis('off')
+		plt.triplot(self.points[:,0],self.points[:,1], self.triangulation.simplices.copy())
+		plt.plot(self.points[:,0], self.points[:,1], 'o')
+		
 
 		# -- Compute areas
 		self.areas = np.zeros((0))
@@ -119,7 +123,8 @@ class homoCircle:
 				+beta*self.points[self.triangulation.simplices][i,1,:]
 				+gamma*self.points[self.triangulation.simplices][i,2,:], axis=0)
 
-		#plt.plot(self.centerPoints[:,0], self.centerPoints[:,1], 'ro')
+		plt.plot(self.centerPoints[:,0], self.centerPoints[:,1], 'ro')
+		plt.savefig("meshCircle-%s.pdf" %(self.N))
 		#plt.show()
 
 	def computeScatteringMatrix(self,Mmax):
@@ -143,8 +148,11 @@ class homoCircle:
 						M[i,j] = self.potential*self.k*self.k*1j*hankel1(0, d)*self.areas[j]/4.0
 	
 			x = np.linalg.solve(np.eye(self.nTriangles,self.nTriangles, dtype=np.complex)-M,b)
-			#fig = plt.figure()
-			#plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
+			fig2 = plt.figure(figsize=(3,3))
+			ax2 = fig2.add_subplot(111)
+			ax2.axis('off')
+			plt.tripcolor(self.points[:,0], self.points[:,1],self.triangulation.simplices, np.abs(x))
+			plt.savefig("intensityTest-%s.pdf" %(self.N))
 			
 
 			# -- We compute the corresponding line of the scattering matrix.
@@ -167,12 +175,12 @@ if __name__ == '__main__':
 	mesh = [25, 50, 100, 200, 300,500,1000,2000]
 	convergence = np.zeros((0,2))
 	for nPoints in mesh:
-		y = homoCircle(nPoints, 1.0, 1.5, 1.0, 1.0, 0)
+		y = homoCircle(nPoints, 1.0-1j*0.5, 1.5, 1.0, 1.0, 0)
 		scatMat = y.computeScatteringMatrix(y.Mmax)
 	
 		analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)
 		zc = y.nc*y.k
-		zo = y.no*y.k
+		zo = y.no*y.k<
 		eta = y.nc/y.no
 		for i in range(2*y.Mmax+1):
 			m = i-y.Mmax
