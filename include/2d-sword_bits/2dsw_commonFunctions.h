@@ -1,14 +1,14 @@
 /*******************************************************-/
  * This source code is subject to the terms of the GNU  -/
- * Public License. If a copy of the LGPL was not        -/
+ * Public License. If a copy of the GPL was not         -/
  * distributed with this file, you can obtain one at    -/
- * https://www.gnu.org/licenses/lgpl.html.              -/
+ * https://www.gnu.org/licenses/gpl.html.               -/
  ********************************************************/
 
- #ifndef COMMON_FUNCTIONS_H
- #define COMMON_FUNCTIONS_H
+#ifndef COMMON_FUNCTIONS_H
+#define COMMON_FUNCTIONS_H
 
- /** \file 2dsw_commonFunctions.h
+/** \file 2dsw_commonFunctions.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
  *  \since 2014-07-24
  *  \date 2014-07-24
@@ -19,10 +19,12 @@
  * and other types of functions. 
  *
  * \copyright GPL
- */
+*/
 
 #include <cmath>
 #include <complex>
+
+#include "2d-sword_bits/2dsw_swordConstants.h"
 
 /// Namespace for the whole library.
 namespace 2D-SWORD {
@@ -43,7 +45,10 @@ inline double user_mod(double value, double modulo)
  *    \todo Add a struct with mathematical constants.*/  
 inline double atan2_pos(double y, double x)
 {
-  return user_mod(atan2(y, x), 6.28318530718);
+  return user_mod(atan2(y, x), datum::pi);
 }
 
-}
+
+} // namespace 2D-SWORD
+
+#endif // COMMON_FUNCTIONS_H

@@ -1,8 +1,8 @@
 /*******************************************************-/
  * This source code is subject to the terms of the GNU  -/
- * Public License. If a copy of the LGPL was not        -/
+ * Public License. If a copy of the GPL was not         -/
  * distributed with this file, you can obtain one at    -/
- * https://www.gnu.org/licenses/lgpl.html.              -/
+ * https://www.gnu.org/licenses/gpl.html.               -/
  ********************************************************/ 
 
 #ifndef CAVITY_H
@@ -42,7 +42,7 @@ public:
    *    @param[in] x2 Value of the second coordinate.
    *    @param[in] k Frequency at which to evaluate the refractive index.
    *    @param[in] coord_sys Coordinate system. 
-   *    @retval refractiveIndex Real or comlex refractive index at the point (x1,y1). */
+   *    @retval refractiveIndex Real or complex refractive index at the point (x1,y1). */
   T operator()(double x1, double x2, double k = 0.0, std::string coord_sys = "polar") const
   {
     T result;
@@ -59,6 +59,7 @@ public:
     else
     {
       std::cout << 'The only available options are "polar" and "cartesian"' << std::endl;
+      /// \todo Better error handling. 
       throw;
     }
 
@@ -84,7 +85,7 @@ private:
   /*! Private virtual function to be implemented in derived classes. */
   virtual T evaluateRefractiveIndex(double r, double theta, double k) const = 0;
 
-};
-}
+};// class Cavity
+} // namespace 2D-SWORD
 
 #endif // CAVITY_H
