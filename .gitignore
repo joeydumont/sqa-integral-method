@@ -1,1 +1,10 @@
+# CMake default files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# User-generated content
 *.pdf
+build/
