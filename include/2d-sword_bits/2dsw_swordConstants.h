@@ -8,7 +8,7 @@
 #ifndef SWORD_CONSTANTS_H
 #define SWORD_CONSTANTS_H
 
- /** \file 2dsw_swordConstants.h
+/** \file 2dsw_swordConstants.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
  *  \since 2014-07-25
  *  \date 2014-07-25
@@ -22,7 +22,7 @@
 
 
 /// Namespace for the whole library.
-namespace 2D-SWORD {
+namespace BD_SWORD {
 
 template <typename eT = double>
 class datum

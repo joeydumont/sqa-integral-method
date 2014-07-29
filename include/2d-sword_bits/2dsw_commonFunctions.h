@@ -24,10 +24,10 @@
 #include <cmath>
 #include <complex>
 
-#include "2d-sword_bits/2dsw_swordConstants.h"
+#include <2d-sword_bits/2dsw_swordConstants.h>
 
 /// Namespace for the whole library.
-namespace 2D-SWORD {
+namespace BD_SWORD {
 
 /*! Proper definition of modular arithmetic.
  *    @param[in] value Value of which we wish to take the modulo.
@@ -45,7 +45,7 @@ inline double user_mod(double value, double modulo)
  *    \todo Add a struct with mathematical constants.*/  
 inline double atan2_pos(double y, double x)
 {
-  return user_mod(atan2(y, x), datum::pi);
+  return user_mod(atan2(y, x), 2.0*datum::pi);
 }
 
 

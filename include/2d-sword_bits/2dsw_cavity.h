@@ -28,7 +28,7 @@
 #include <cmath>
 
 /// Generic namesapce for the whole library.
-namespace 2D-SWORD {
+namespace BD_SWORD {
 
 template <class T>
 class Cavity
@@ -58,7 +58,7 @@ public:
 
     else
     {
-      std::cout << 'The only available options are "polar" and "cartesian"' << std::endl;
+      std::cout << "The only available options are \"polar\" and \"cartesian\"" << std::endl;
       /// \todo Better error handling. 
       throw;
     }
@@ -83,7 +83,7 @@ protected:
 
 private:
   /*! Private virtual function to be implemented in derived classes. */
-  virtual T evaluateRefractiveIndex(double r, double theta, double k) const = 0;
+  virtual T evaluateRefractiveIndex<T>(double r, double theta, double k) const = 0;
 
 };// class Cavity
 } // namespace 2D-SWORD
