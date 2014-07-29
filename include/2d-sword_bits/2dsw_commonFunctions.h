@@ -49,6 +49,6 @@ inline double atan2_pos(double y, double x)
 }
 
 
-} // namespace 2D-SWORD
+} // namespace BD_SWORD
 
 #endif // COMMON_FUNCTIONS_H

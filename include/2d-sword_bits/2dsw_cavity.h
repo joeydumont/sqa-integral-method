@@ -86,6 +86,6 @@ private:
   virtual T evaluateRefractiveIndex<T>(double r, double theta, double k) const = 0;
 
 };// class Cavity
-} // namespace 2D-SWORD
+} // namespace BD_SWORD
 
 #endif // CAVITY_H

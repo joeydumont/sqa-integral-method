@@ -15,10 +15,12 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=c++11 -Wall -march=native")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Source files
-aux_source_directory(./src SRC_LIST )
+aux_source_directory(./src SRC_LIST)
 
 # Build a shared library
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST}) 
+add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
+
+# Dependencies 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} armadillo)
 
 SET_TARGET_PROPERTIES(${PROJECT_NAME}

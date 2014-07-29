@@ -205,6 +205,6 @@ protected:
   ///@}
 
 };// class SurfaceMesh
-} // namespace 2D-SWORD
+} // namespace BD_SWORD
 
 #endif // SURFACE_MESH_H

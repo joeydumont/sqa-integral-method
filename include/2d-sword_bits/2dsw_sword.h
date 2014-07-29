@@ -5,8 +5,8 @@
  * https://www.gnu.org/licenses/gpl.html.               -/
  ********************************************************/
 
-#ifndef 2D-SWORD_H
-#define 2D-SWORD_H
+#ifndef BD_SWORD_H
+#define BD_SWORD_H
 
 /** \file 2dsw_sword.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
@@ -53,4 +53,4 @@ protected:
 };// class BDSword
 } // namespace BD_SWORD
 
-#endif // 2D-SWORD_H
+#endif // BD_SWORD_H
