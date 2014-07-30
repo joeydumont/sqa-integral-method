@@ -58,13 +58,15 @@ std::complex<double> besselJ0(double r, double theta)
 int main(int argc, char* argv[])
 {
   HomoCircCavity<double> cav(2.0,1.0,1.0);
-  SurfaceMesh<double> meshCav(75,75,cav);
+  SurfaceMesh<double> meshCav(50,50,cav);
   meshCav.prepareMesh();
   BDSword_TM<double> bdsword(meshCav, 1.0);
   arma::cx_vec test = bdsword.computeInteriorField<func_ptr>(besselJ0);
   arma::abs(test).eval().save("2dsw_testSword.dat", arma::raw_ascii);
 
-  // We compute the S00 element manually. 
+  // We compute the S00 element manually.
+  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1);
+  scatMat.print();
   std::complex<double> sum(0.0,0.0);
   arma::mat centerPositions = meshCav.getCenterPositions();
   centerPositions.save("2dsw_testSwordCenterPos.dat", arma::raw_ascii);

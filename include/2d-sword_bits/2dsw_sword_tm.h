@@ -56,11 +56,50 @@ public:
     arma::cx_mat kernel = evaluateKernel(centerPositions, this->mesh.getAreaCells());
 
     // Solve the linear equation.
-    arma::cx_mat kernelP = arma::eye<arma::cx_mat>(size,size)+k*k*kernel;
+    arma::cx_mat kernelP = arma::eye<arma::cx_mat>(size,size)+kernel;
     return arma::solve(kernelP, incField);
   } // computeInteriorField()
 
-  //virtual arma::cx_mat computeScatteringMatrix();
+  arma::cx_mat computeScatteringMatrix(unsigned int Mmax)
+  {
+    // We prepare the variables.
+    this->scatMat.set_size(2*Mmax+1,2*Mmax+1);
+
+    // We compute the scattering matrix column-by-column.
+    eigenFunctions* eig = new eigenFunctions(-Mmax);
+    for (unsigned int i = 0; i < 2*Mmax+1; i++)
+    {
+      // We set the "incoming" angular momentum. 
+      int m = i-Mmax;
+      eig->sgnExp = 1;
+      eig->M = m;
+      arma::cx_vec intField =  computeInteriorField<eigenFunctions>(*eig);
+
+      // We compute the S_m'm, the transition probability from momentum m' to m.
+      for (unsigned int j = 0; j < 2*Mmax+1; j++)
+      {
+        int mp = j-Mmax;
+        eig->sgnExp = -1;
+        eig->M = mp;
+        for (unsigned int k = 0; k < this->mesh.getAreaCells().n_rows; k++)
+        {
+          double r = sqrt(pow(this->mesh.getCenterPositions()(k,0), 2.0)
+                          +pow(this->mesh.getCenterPositions()(k,1),2.0));
+          double theta = atan2_pos(this->mesh.getCenterPositions()(k,1),
+                                    this->mesh.getCenterPositions()(k,0));
+
+          this->scatMat(j,i) += eig->operator()(r,theta)
+                    *(pow(this->mesh.cav(r,theta),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
+                    *intField(k)
+                    *this->mesh.getAreaCells()(k);
+        }
+        this->scatMat(j,i) *= 0.5*datum<double>::i*k*k;
+        this->scatMat(j,i) += ((mp==m) ? 1.0 : 0.0);
+      }
+    }
+    delete eig;
+    return this->scatMat;
+  } // computeScatteringMatrix()
   double k;
 
 protected:
@@ -81,8 +120,8 @@ protected:
         // Compute diagonal elements.
         if (i==j)
         {
-          kernel(i,j) = 0.0;// -0.5*(pow(this->mesh.cav(r1,phi1,k),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
-                          //pow(this->mesh.cav.getExtPotential(),2.0);
+          kernel(i,j) = 0.0;//0.5*(pow(this->mesh.cav(r1,phi1,k),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
+                          ///pow(this->mesh.cav.getExtPotential(),2.0);
         }
         // Compute off-diagonal elements.
         if (i!=j)
@@ -93,7 +132,7 @@ protected:
           double d = sqrt(r1*r1+r2*r2-2.0*r1*r2*cos(phi1-phi2));
 
           // Compute the Bessel function.
-          kernel(i,j) = -0.25*std::complex<double>(0.0,1.0)
+          kernel(i,j) = -0.25*k*k*std::complex<double>(0.0,1.0)
                         *sp_bessel::hankelH1(0,k*this->mesh.cav.getExtPotential()*d)
                         *(pow(this->mesh.cav(r2,phi2,k),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
                         *areaCells(j);
@@ -102,6 +141,17 @@ protected:
     }
     return kernel;
   } // evaluateKernel()
+
+  struct eigenFunctions
+  {
+    eigenFunctions(int _M=0, int _sgnExp=1){M=_M;sgnExp=_sgnExp;}
+    int sgnExp;
+    int M;
+    std::complex<double> operator()(double r, double theta)
+    {
+      return sp_bessel::besselJ(M,r)*exp((double)sgnExp*datum<double>::i*(double)M*theta);
+    }
+  };
 
 };// class BDSword_TM
 } // namespace BD_SWORD

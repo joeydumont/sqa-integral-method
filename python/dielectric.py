@@ -175,7 +175,7 @@ if __name__ == '__main__':
 	mesh = [25, 50, 100, 200, 300,500,1000,2000]
 	convergence = np.zeros((0,2))
 	for nPoints in mesh:
-		y = homoCircle(nPoints, 1.0, 2.0, 1.0, 1.0, 0)
+		y = homoCircle(nPoints, 1.0, 2.0, 1.0, 1.0, 1)
 		scatMat = y.computeScatteringMatrix(y.Mmax)
 	
 		analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)

@@ -41,7 +41,7 @@ public:
   arma::cx_vec computeInteriorField(func_type func);
 
   ///*! Computes the scattering matrix of the cavity. */
-  //virtual arma::cx_mat computeScatteringMatrix();
+  virtual arma::cx_mat computeScatteringMatrix(unsigned int Mmax) = 0;
 
   /*! @name Accessor Functions */
   ///@{
