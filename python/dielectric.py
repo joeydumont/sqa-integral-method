@@ -175,12 +175,12 @@ if __name__ == '__main__':
 	mesh = [25, 50, 100, 200, 300,500,1000,2000]
 	convergence = np.zeros((0,2))
 	for nPoints in mesh:
-		y = homoCircle(nPoints, 1.0-1j*0.5, 1.5, 1.0, 1.0, 0)
+		y = homoCircle(nPoints, 1.0, 2.0, 1.0, 1.0, 0)
 		scatMat = y.computeScatteringMatrix(y.Mmax)
 	
 		analScatMat = np.zeros(2*y.Mmax+1, dtype=complex)
 		zc = y.nc*y.k
-		zo = y.no*y.k<
+		zo = y.no*y.k
 		eta = y.nc/y.no
 		for i in range(2*y.Mmax+1):
 			m = i-y.Mmax
@@ -189,6 +189,7 @@ if __name__ == '__main__':
 			analScatMat[i] = num/den
 		err = np.amax(np.abs(np.diag(analScatMat)-scatMat))
 		print(err)
+		print(analScatMat)
 
 		# -- Mean areas of triangles
 		convergence = np.insert(convergence, len(convergence), [np.mean(y.areas), err],axis=0)

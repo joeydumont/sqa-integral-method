@@ -29,26 +29,29 @@ namespace BD_SWORD {
 template <class T>
 class BDSword
 {
-  /*! Constructor sets the cavity and the mesh.
-   *    @param[in] */
-  BDSword(Cavity<T>& cav, SurfaceMesh& mesh)
-  {
-
-  }
-
 public:
+  /*! Constructor sets the cavity and the mesh.
+   *    @param[in] _mesh Mesh object. */
+  BDSword(SurfaceMesh<T>& _mesh) : mesh(_mesh){}
+
   /*! Computes the interior field due to an incident field described by func. 
    *    @param[in] func_type Incident field.
    *    @retval Returns the interior field due to the incident field. */
   template <class func_type>
   arma::cx_vec computeInteriorField(func_type func);
 
-  /*! Computes the scattering matrix of the cavity. */
-  arma::cx_mat computeScatteringMatrix();
+  ///*! Computes the scattering matrix of the cavity. */
+  //virtual arma::cx_mat computeScatteringMatrix();
 
-protected:
+  /*! @name Accessor Functions */
+  ///@{
+  SurfaceMesh<T>& getMesh(){return mesh;}
+  void setMesh(SurfaceMesh<T>& _mesh){mesh=_mesh;}
+  ///@}
+
   arma::cx_vec interiorField;
   arma::cx_mat scatMat;
+  SurfaceMesh<T>& mesh;
   
 };// class BDSword
 } // namespace BD_SWORD

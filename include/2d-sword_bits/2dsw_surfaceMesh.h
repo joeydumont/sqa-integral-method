@@ -40,22 +40,20 @@ namespace BD_SWORD {
 template <class T>
 class SurfaceMesh
 {
+public:
   /*! Constructor sets the mesh size and the cavity. 
    *    @param[in] _Nx Number of cells in the x direction.
    *    @param[in] _Ny Number of cells in the y direction.
    *    @param[in] _cav Reference to a Cavity object.*/
-  SurfaceMesh(int _Nx, int _Ny, Cavity<T>& _cav)
+  SurfaceMesh(int _Nx, int _Ny, Cavity<T>& _cav) : cav(_cav)
   {
     setNumberMeshPointsX(_Nx);
     setNumberMeshPointsY(_Ny);
-    setCavity(_cav);
   }
 
-public:
   /*! Prepares the mesh used to discretize the cavity. */
   void prepareMesh()
   {
-    {
   // We determine the size of the mesh.
   double rMax = cav.getLSSRadius();
 
@@ -73,8 +71,8 @@ public:
     for (unsigned int idy = 0; idy < Ny; idy++)
     {
       centerPoints(idx,idy).set_size(2);
-      centerPoints(idx,idy)(0) = (idx+0.5)*dx;
-      centerPoints(idx,idy)(1) = (idy+0.5)*dy;
+      centerPoints(idx,idy)(0) = -rMax+(idx+0.5)*dx;
+      centerPoints(idx,idy)(1) = -rMax+(idy+0.5)*dy;
     }
   }
 
@@ -100,29 +98,7 @@ public:
 
   // Set the mesh to ready.
   meshReady = true;
-} // SurfaceMesh::prepareMesh()
-  }
-
-protected:
-  /*! @name Construction Variables 
-   * Variables necessary to construct the SurfaceMesh. */
-  ///@{
-  unsigned int Nx, Ny;
-  Cavity<T>& cav;
-  ///}
-
-  /*! @name Mesh Variables 
-   * Properties of the constructed mesh. */
-  ///@{
-  arma::field<arma::vec> centerPoints;
-  arma::mat areaCells;
-  std::vector<std::vector<bool> > interiorBool;
-  ///@}
-
-  /*! Bookkeeping Variables */
-  ///@{
-  bool meshReady = false;
-  ///@}
+  } // SurfaceMesh::prepareMesh()
 
   /*! Accessor Functions */
   ///@{
@@ -134,6 +110,9 @@ protected:
 
   Cavity<T>& getCavity(){return cav;}
   void setCavity(Cavity<T>& _cav){cav=_cav;setMeshReady(false);}
+
+  bool getMeshReady(){return meshReady;}
+  void setMeshReady(bool _meshReady){meshReady=_meshReady;}
 
   arma::mat getCenterPositions()
   {
@@ -167,7 +146,7 @@ protected:
   }
 
   return centerPositions;
-} // SurfaceMesh::getCenterPositions()
+  } // SurfaceMesh::getCenterPositions()
 
   arma::vec getAreaCells()
   {
@@ -199,9 +178,26 @@ protected:
   }
 
   return areaCellsVec;
-} // SurfaceMesh::getAreaCells()
+  } // SurfaceMesh::getAreaCells()
 
-  bool getMeshReady(){return meshReady;}
+  /*! @name Construction Variables 
+   * Variables necessary to construct the SurfaceMesh. */
+  ///@{
+  unsigned int Nx, Ny;
+  Cavity<T>& cav;
+  ///}
+
+  /*! @name Mesh Variables 
+   * Properties of the constructed mesh. */
+  ///@{
+  arma::field<arma::vec> centerPoints;
+  arma::mat areaCells;
+  std::vector<std::vector<bool> > interiorBool;
+  ///@}
+
+  /*! Bookkeeping Variables */
+  ///@{
+  bool meshReady = false;
   ///@}
 
 };// class SurfaceMesh

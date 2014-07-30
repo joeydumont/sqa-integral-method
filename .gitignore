@@ -8,3 +8,12 @@ install_manifest.txt
 # User-generated content
 *.pdf
 build/
+
+/*
+!/*.cpp
+!/*.h
+!/*/
+/*/**/*
+!/*/**/
+!/*/**/*.c
+!/*/**/*.h

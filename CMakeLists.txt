@@ -21,7 +21,7 @@ aux_source_directory(./src SRC_LIST)
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
 
 # Dependencies 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} armadillo)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} armadillo complex_bessel)
 
 SET_TARGET_PROPERTIES(${PROJECT_NAME}
     PROPERTIES

@@ -45,7 +45,7 @@ inline double user_mod(double value, double modulo)
  *    \todo Add a struct with mathematical constants.*/  
 inline double atan2_pos(double y, double x)
 {
-  return user_mod(atan2(y, x), 2.0*datum::pi);
+  return user_mod(atan2(y, x), 2.0*datum<double>::pi);
 }
 
 
