@@ -49,37 +49,41 @@ private:
 };
 
 typedef std::complex<double> (*func_ptr)(double r, double theta);
+typedef arma::cx_rowvec (*arma_ptr)(double r, double theta);
 
 std::complex<double> besselJ0(double r, double theta)
 {
   return sp_bessel::besselJ(0,r)*exp(std::complex<double>(0.0,1.0)*0.0*theta);
 }
 
+arma::cx_rowvec gradBesselJ0(double r, double theta)
+{
+  arma::cx_rowvec grad(3);
+  grad(0) = sp_bessel::besselJ(0,r);
+  grad(1) = cos(theta)*sp_bessel::besselJ(1,r);
+  grad(2) = -sin(theta)*sp_bessel::besselJ(1,r);
+  return grad;
+}
+
 int main(int argc, char* argv[])
 {
   HomoCircCavity<double> cav(2.0,1.0,1.0);
-  SurfaceMesh<double> meshCav(50,50,cav);
+  SurfaceMesh<double> meshCav(25,25,cav);
   meshCav.prepareMesh();
+
+  // TM pol.
   BDSword_TM<double> bdsword(meshCav, 1.0);
   arma::cx_vec test = bdsword.computeInteriorField<func_ptr>(besselJ0);
   arma::abs(test).eval().save("2dsw_testSword.dat", arma::raw_ascii);
-
-  // We compute the S00 element manually.
-  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1);
+  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(0);
   scatMat.print();
-  std::complex<double> sum(0.0,0.0);
+
   arma::mat centerPositions = meshCav.getCenterPositions();
   centerPositions.save("2dsw_testSwordCenterPos.dat", arma::raw_ascii);
-  arma::vec areas = meshCav.getAreaCells();
-  for (int i=0; i<centerPositions.n_rows; i++)
-  {
-    sum+= -3.0
-    *areas(i)
-    *test(i)
-    *besselJ0(sqrt(pow(centerPositions(i,0),2.0)+pow(centerPositions(i,1),2.0)), 0.0);
-  }
 
-  std::cout << "S_00: " << 1.0-0.5*std::complex<double>(0.0,1.0)*sum << std::endl;
-
+  // TE pol.
+  BDSword_TE_const<double> bdswordTE(meshCav, 1.0);
+  arma::cx_vec intFieldTE = bdswordTE.computeInteriorField<arma_ptr>(gradBesselJ0);
+  arma::abs(intFieldTE).eval().save("2dsw_testSword_te.dat", arma::raw_ascii);
   return 0;
 }

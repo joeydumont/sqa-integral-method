@@ -1,3 +1,8 @@
+"""@package 2D-Sword-py
+This code provides facilities to solve the
+scattering problem in bidimensional cavities. 
+"""
+
 from scipy.spatial import Delaunay
 from scipy.special import jn, jvp, hankel1, hankel2, h1vp, h2vp
 import numpy as np
@@ -17,7 +22,7 @@ class Dielectric:
 	"""
 	Class that encapsulates the data pertaining to a dielectric
 	cavity. The form of the boundary, given in the implicit form
-	<math>r(\theta)</math>, has to be given as a callable function. 
+	\f$r(\theta)\f$, has to be given as a callable function. 
 	Subclasses will define the particular geometry.
 
 	We will also generate the Delaunay triangulation of the given 

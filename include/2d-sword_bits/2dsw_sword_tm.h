@@ -11,7 +11,7 @@
 /** \file 2dsw_sword_tm.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
  *  \since 2014-07-29
- *  \date 2014-07-29
+ *  \date 2014-07-31
  *  \brief Implements the solution method for the TM polarization. 
  * 
  * This class defines the necessary functions and numerical 

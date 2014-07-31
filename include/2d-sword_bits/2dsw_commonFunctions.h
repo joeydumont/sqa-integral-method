@@ -11,7 +11,7 @@
 /** \file 2dsw_commonFunctions.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
  *  \since 2014-07-24
- *  \date 2014-07-24
+ *  \date 2014-07-31
  *  \brief Defines some common utility functions for the library.
  *
  * This file defines some functions that are used inside the whole
@@ -41,8 +41,7 @@ inline double user_mod(double value, double modulo)
 /*! Proper definition of the atan2 function. Returns a value in [0, 2*pi).
  *    @param[in] x x-coordinate.
  *    @param[in] y y-coordinate.
- *    @retval atan2_pos Value of the angle between x and y in [0,2*pi). 
- *    \todo Add a struct with mathematical constants.*/  
+ *    @retval atan2_pos Value of the angle between x and y in [0,2*pi).*/  
 inline double atan2_pos(double y, double x)
 {
   return user_mod(atan2(y, x), 2.0*datum<double>::pi);

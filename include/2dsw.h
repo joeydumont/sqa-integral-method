@@ -14,5 +14,6 @@
 #include <2d-sword_bits/2dsw_swordConstants.h>
 #include <2d-sword_bits/2dsw_sword.h>
 #include <2d-sword_bits/2dsw_sword_tm.h>
+#include <2d-sword_bits/2dsw_sword_te_const.h>
 
 #endif // BDSW_H

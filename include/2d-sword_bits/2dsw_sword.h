@@ -11,7 +11,7 @@
 /** \file 2dsw_sword.h
  *  \author Joey Dumont <joey.dumont@gmail.com>
  *  \since 2014-07-28
- *  \date 2014-07-28
+ *  \date 2014-07-31
  *  \brief Solves the scattering problem of a given cavity. 
  * 
  * This class implements diverse solution methods for the 
@@ -40,7 +40,9 @@ public:
   template <class func_type>
   arma::cx_vec computeInteriorField(func_type func);
 
-  ///*! Computes the scattering matrix of the cavity. */
+  /*! Computes the scattering matrix associated with a cavity. 
+   *    @param[in] Mmax Maximum angular momentum to consider.
+   *    @retval scatMat Scattering matrix of truncated size (2*Mmax+1)x(2*Mmax+1).*/
   virtual arma::cx_mat computeScatteringMatrix(unsigned int Mmax) = 0;
 
   /*! @name Accessor Functions */
@@ -49,6 +51,7 @@ public:
   void setMesh(SurfaceMesh<T>& _mesh){mesh=_mesh;}
   ///@}
 
+protected:
   arma::cx_vec interiorField;
   arma::cx_mat scatMat;
   SurfaceMesh<T>& mesh;
