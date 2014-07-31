@@ -16,7 +16,7 @@
  * \copyright GPL
  */
 
-#include <2dsw.h>
+#include <2d-sword.h>
 #include <armadillo>
 #include <complex_bessel.h>
 

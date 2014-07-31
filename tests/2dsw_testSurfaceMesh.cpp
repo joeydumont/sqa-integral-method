@@ -16,7 +16,7 @@
  * \copyright GPL
  */
 
-#include <2dsw.h>
+#include <2d-sword.h>
 #include <armadillo>
 
 using namespace BD_SWORD;
