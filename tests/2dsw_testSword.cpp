@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   BDSword_TM<double> bdsword(meshCav, 1.0);
   arma::cx_vec test = bdsword.computeInteriorField<func_ptr>(besselJ0);
   arma::abs(test).eval().save("2dsw_testSword.dat", arma::raw_ascii);
-  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(0);
+  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1.0);
   scatMat.print();
 
   arma::mat centerPositions = meshCav.getCenterPositions();
