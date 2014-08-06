@@ -32,7 +32,7 @@ class BDSword
 public:
   /*! Constructor sets the cavity and the mesh.
    *    @param[in] _mesh Mesh object. */
-  BDSword(SurfaceMesh<T>& _mesh) : mesh(_mesh){}
+  BDSword(std::complex<double> _k, unsigned int _Mmax, SurfaceMesh<T>& _mesh) : mesh(_mesh){k=_k;Mmax=_Mmax;}
 
   /*! Computes the interior field due to an incident field described by func. 
    *    @param[in] func_type Incident field.
@@ -43,7 +43,7 @@ public:
   /*! Computes the scattering matrix associated with a cavity. 
    *    @param[in] Mmax Maximum angular momentum to consider.
    *    @retval scatMat Scattering matrix of truncated size (2*Mmax+1)x(2*Mmax+1).*/
-  virtual arma::cx_mat computeScatteringMatrix(unsigned int Mmax) = 0;
+  virtual arma::cx_mat computeScatteringMatrix(std::complex<double> k, unsigned int Mmax) = 0;
 
   /*! @name Accessor Functions */
   ///@{
@@ -52,6 +52,8 @@ public:
   ///@}
 
 protected:
+  std::complex<double> k;
+  unsigned int Mmax;
   arma::cx_vec interiorField;
   arma::cx_mat scatMat;
   SurfaceMesh<T>& mesh;

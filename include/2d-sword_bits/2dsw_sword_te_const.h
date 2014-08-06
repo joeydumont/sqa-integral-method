@@ -36,7 +36,8 @@ public:
   /*! Constructor sets the cavity, the mesh and the wavenumber.
    *    @param[in] _mesh Mesh object. 
    *    @param[in] _k Wavenumber for which to solve the scattering problem.*/
-   BDSword_TE_const(SurfaceMesh<T>& _mesh, double _k) : BDSword<T>(_mesh){k=_k;}
+   BDSword_TE_const(std::complex<double> _k, unsigned int _Mmax, SurfaceMesh<T>& _mesh) 
+                    : BDSword<T>(_k, _Mmax, _mesh){}
 
    template <class func_type>
    arma::cx_vec computeInteriorField(func_type func)

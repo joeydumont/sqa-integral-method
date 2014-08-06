@@ -46,7 +46,7 @@ public:
    *    @param[in] k Frequency at which to evaluate the refractive index.
    *    @param[in] coord_sys Coordinate system. 
    *    @retval refractiveIndex Real or complex refractive index at the point (x1,y1). */
-  T operator()(double x1, double x2, double k = 0.0, std::string coord_sys = "polar")
+  T operator()(double x1, double x2, std::complex<double> k = std::complex<double>(0.0,0.0), std::string coord_sys = "polar")
   {
     T result;
     if (coord_sys == std::string("polar"))
@@ -89,7 +89,7 @@ protected:
   T n0;
 
   /*! Private virtual function to be implemented in derived classes. */
-  virtual T evaluateRefractiveIndex(double r, double theta, double k) = 0;
+  virtual T evaluateRefractiveIndex(double r, double theta, std::complex<double> k) = 0;
 
 };// class Cavity
 } // namespace BD_SWORD

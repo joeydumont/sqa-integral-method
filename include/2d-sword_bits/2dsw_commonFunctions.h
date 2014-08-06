@@ -57,7 +57,7 @@ inline double atan2_pos(double y, double x)
  *  @param[in] b Factor by which we reduce the stepsize each iteration.
  *  @retval matrixDerivative Returns the value of the matrix derivative. */
 template <class mat_type, class func_type>
-arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<double> x, double h, double b=1.4)
+arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<double> x, double h, double b=1.4, double tol = 1.0e-5)
 {
   // Compute the square of the stepsize reducing factor.
   double b2 = b*b;
@@ -82,7 +82,7 @@ arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<d
   // We limit the size of the tableau to 10 to limit the number of function
   // evaluations.
   unsigned int i = 1;
-  while(1)
+  while(i<10)
   {
     // We resize the cubes only if necessary.
     if (i>5)
@@ -115,7 +115,9 @@ arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<d
       }
 
       // If higher order is worse by a significant factor, we quit.
-      if (arma::norm(tableauNew.slice(i)-tableauOld.slice(i-1)) >= safe*err) break;
+      if (arma::norm(tableauNew.slice(i)-tableauOld.slice(i-1)) >= safe*err
+        ||err <= tol) break;
+
 
       // Bookkeeping for next iteration.
       i++;
@@ -158,6 +160,7 @@ std::complex<double> polesMatrix(func_type matrix, std::complex<double> pole, co
     // Bookkeeping
     errOld = errNew;
     pole = poleNew;
+    std::cout << pole << std::endl;
   }
 
   return pole;

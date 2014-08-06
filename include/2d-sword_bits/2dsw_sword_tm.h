@@ -34,7 +34,8 @@ class BDSword_TM : public BDSword<T>
 public:
   /*! Constructor sets the cavity and the mesh. 
    *    @param[in] _mesh Mesh object. */
-  BDSword_TM(SurfaceMesh<T>& _mesh, double _k) : BDSword<T>(_mesh){k=_k;}
+  BDSword_TM(std::complex<double> _k, unsigned int _Mmax, SurfaceMesh<T>& _mesh) 
+              : BDSword<T>(_k, _Mmax, _mesh){}
 
   template <class func_type>
   arma::cx_vec computeInteriorField(func_type func)
@@ -60,25 +61,32 @@ public:
     return arma::solve(kernelP, incField);
   } // computeInteriorField()
 
-  arma::cx_mat computeScatteringMatrix(unsigned int Mmax)
+  arma::cx_mat operator()(std::complex<double> _k)
   {
-    // We prepare the variables.
-    this->scatMat.set_size(2*Mmax+1,2*Mmax+1);
+    return computeScatteringMatrix(_k);
+  }
+
+  arma::cx_mat computeScatteringMatrix(std::complex<double> _k, unsigned int _Mmax=25)
+  {
+    // We prepare the variables.  
+    this->k=_k;
+    this->Mmax = _Mmax;
+    this->scatMat.set_size(2*this->Mmax+1,2*this->Mmax+1);
 
     // We compute the scattering matrix column-by-column.
-    eigenFunctions* eig = new eigenFunctions(-Mmax);
-    for (unsigned int i = 0; i < 2*Mmax+1; i++)
+    eigenFunctions* eig = new eigenFunctions(-this->Mmax);
+    for (unsigned int i = 0; i < 2*this->Mmax+1; i++)
     {
       // We set the "incoming" angular momentum. 
-      int m = i-Mmax;
+      int m = i-this->Mmax;
       eig->sgnExp = 1;
       eig->M = m;
       arma::cx_vec intField =  computeInteriorField<eigenFunctions>(*eig);
 
       // We compute the S_m'm, the transition probability from momentum m' to m.
-      for (unsigned int j = 0; j < 2*Mmax+1; j++)
+      for (unsigned int j = 0; j < 2*this->Mmax+1; j++)
       {
-        int mp = j-Mmax;
+        int mp = j-this->Mmax;
         eig->sgnExp = -1;
         eig->M = mp;
         for (unsigned int k = 0; k < this->mesh.getAreaCells().n_rows; k++)
@@ -93,14 +101,13 @@ public:
                     *intField(k)
                     *this->mesh.getAreaCells()(k);
         }
-        this->scatMat(j,i) *= 0.5*datum<double>::i*k*k;
+        this->scatMat(j,i) *= 0.5*datum<double>::i*pow(this->k,2.0);
         this->scatMat(j,i) += ((mp==m) ? 1.0 : 0.0);
       }
     }
     delete eig;
     return this->scatMat;
   } // computeScatteringMatrix()
-  double k;
 
 protected:
   /*! Computes the kernel of the linear equation.
@@ -132,9 +139,9 @@ protected:
           double d = sqrt(r1*r1+r2*r2-2.0*r1*r2*cos(phi1-phi2));
 
           // Compute the Bessel function.
-          kernel(i,j) = -0.25*k*k*std::complex<double>(0.0,1.0)
-                        *sp_bessel::hankelH1(0,k*this->mesh.cav.getExtPotential()*d)
-                        *(pow(this->mesh.cav(r2,phi2,k),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
+          kernel(i,j) = -0.25*pow(this->k,2.0)*datum<double>::i
+                        *sp_bessel::hankelH1(0,this->k*this->mesh.cav.getExtPotential()*d)
+                        *(pow(this->mesh.cav(r2,phi2,this->k),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
                         *areaCells(j);
         }
       }

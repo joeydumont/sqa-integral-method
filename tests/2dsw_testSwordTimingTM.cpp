@@ -30,6 +30,23 @@
 
 using namespace BD_SWORD;
 
+typedef arma::cx_mat (*testMatrix)(std::complex<double>);
+arma::cx_mat testMatrixPole(std::complex<double> z)
+{
+  arma::cx_mat test(3,3);
+  test(0,0) = 1.;
+  test(0,1) = 4.;
+  test(0,2) = 5.;
+  test(1,0) = 7.;
+  test(1,1) = -1.0/z; 
+  test(1,2) = 9.;
+  test(2,0) = 1.;
+  test(2,1) = 4.;
+  test(2,2) = 2.;
+
+  return test;
+}
+
 template <class T>
 class HomoCircCavity : public Cavity<T>
 {
@@ -47,7 +64,7 @@ protected:
   T nIn;
 
 private:
-  virtual T evaluateRefractiveIndex(double r, double theta, double k)
+  virtual T evaluateRefractiveIndex(double r, double theta, std::complex<double> k)
   {
     if (r<=this->rMax)
       return nIn;
@@ -92,9 +109,9 @@ int main(int argc, char* argv[])
   SurfaceMesh<double> meshCav(Nmesh,Nmesh,cav);
   meshCav.prepareMesh();
 
-  BDSword_TM<double> bdsword(meshCav, 1.0);
+  BDSword_TM<double> bdsword(1.0, 25, meshCav);
   clock_t start = clock();
-  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(25);
+  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1.0, 25);
   clock_t end = clock();
   arma::cx_mat analSMat = analSmatrix(25, 
                                       std::complex<double>(2.0,0.0),
@@ -102,7 +119,11 @@ int main(int argc, char* argv[])
                                       1.0);
 
   double err = arma::max(arma::max(arma::abs(scatMat-analSMat)));
+  std::cout << err << std::endl;
 
+ // std::cout << polesMatrix<std::complex<double>, BDSword_TM<double>&>(bdsword, 0.4);
+
+  //std::cout << polesMatrix<std::complex<double>, testMatrix>(testMatrixPole, 1.0) << std::endl; 
   // We write this in a file. 
   std::ofstream results;
   results.open("convergence.dat", std::ios::app);
