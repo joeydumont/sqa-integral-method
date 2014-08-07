@@ -90,25 +90,41 @@ int main(int argc, char* argv[])
 
   // We prepare the file.
   std::ofstream results;
-  results.open("convergence.dat", std::ios::app);
+  results.open("polesHomoCirc.dat", std::ios::app);
   results.setf(std::ios::scientific);
   results.precision(15);
   
   // We compute a fixed set of roots.
+  int mMax = 2;
+  int jMax = 5;
 
-  std::cout << polesMatrix<std::complex<double>, BDSword_TM<double>&>(bdsword, 0.4);
+  for (int i = 0; i < mMax; i++)
+  {
+    for (int j = 0; j < jMax; j++)
+    {
+      // We compute the pole.
+      clock_t start = clock();
+      double initReK = datum<double>::pi/2.0*(i/2.0+j+0.25)
+      double initImK = log(abs(1.0)/(3.0))/(2.0*2.0)
+      std::complex<double> pole 
+            = polesMatrix<std::complex<double>, BDSword_TM<double>&>
+              (bdsword, std::complex<double>(initReK, initImK));
+      clock_t end = clock();
+
+      // We write this in a file. 
+      results.put(' ');
+      results.width(20);
+      results << std::real(pole);
+      results.put(' ');
+      results.width(20);
+      results << std::imag(pole);
+      results.put(' ');
+      results.width(20);
+      results << ((double)end-(double)start) / CLOCKS_PER_SEC;
+      results.put('\n');
+    }
+  }
   
-  // We write this in a file. 
-  results.put(' ');
-  results.width(20);
-  results << arma::mean(meshCav.getAreaCells());
-  results.put(' ');
-  results.width(20);
-  results << err;
-  results.put(' ');
-  results.width(20);
-  results << ((double)end-(double)start) / CLOCKS_PER_SEC;
-  results.put('\n');
   results.close();
 
   return 0;
