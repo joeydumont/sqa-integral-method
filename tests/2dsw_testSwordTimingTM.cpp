@@ -111,12 +111,12 @@ int main(int argc, char* argv[])
 
   BDSword_TM<double> bdsword(1.0, 25, meshCav);
   clock_t start = clock();
-  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1.0, 25);
+  arma::cx_mat scatMat = bdsword.computeScatteringMatrix(0.5);
   clock_t end = clock();
   arma::cx_mat analSMat = analSmatrix(25, 
                                       std::complex<double>(2.0,0.0),
                                       std::complex<double>(1.0,0.0),
-                                      1.0);
+                                      0.5);
 
   double err = arma::max(arma::max(arma::abs(scatMat-analSMat)));
   std::cout << err << std::endl;

@@ -97,6 +97,7 @@ int main(int argc, char* argv[])
   // We compute a fixed set of roots.
   int mMax = 2;
   int jMax = 5;
+  std::complex<double> pole;
 
   for (int i = 0; i < mMax; i++)
   {
@@ -104,9 +105,9 @@ int main(int argc, char* argv[])
     {
       // We compute the pole.
       clock_t start = clock();
-      double initReK = datum<double>::pi/2.0*(i/2.0+j+0.25)
-      double initImK = log(abs(1.0)/(3.0))/(2.0*2.0)
-      std::complex<double> pole 
+      double initReK = datum<double>::pi/2.0*(i/2.0+j+0.25);
+      double initImK = log(abs(1.0)/(3.0))/(2.0*2.0);
+      pole 
             = polesMatrix<std::complex<double>, BDSword_TM<double>&>
               (bdsword, std::complex<double>(initReK, initImK));
       clock_t end = clock();

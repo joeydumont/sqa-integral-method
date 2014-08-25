@@ -89,17 +89,17 @@ public:
         int mp = j-this->Mmax;
         eig->sgnExp = -1;
         eig->M = mp;
-        for (unsigned int k = 0; k < this->mesh.getAreaCells().n_rows; k++)
+        for (unsigned int l = 0; l < this->mesh.getAreaCells().n_rows; l++)
         {
-          double r = sqrt(pow(this->mesh.getCenterPositions()(k,0), 2.0)
-                          +pow(this->mesh.getCenterPositions()(k,1),2.0));
-          double theta = atan2_pos(this->mesh.getCenterPositions()(k,1),
-                                    this->mesh.getCenterPositions()(k,0));
+          double r = sqrt(pow(this->mesh.getCenterPositions()(l,0), 2.0)
+                          +pow(this->mesh.getCenterPositions()(l,1),2.0));
+          double theta = atan2_pos(this->mesh.getCenterPositions()(l,1),
+                                    this->mesh.getCenterPositions()(l,0));
 
           this->scatMat(j,i) += eig->operator()(r,theta)
                     *(pow(this->mesh.cav(r,theta),2.0)-pow(this->mesh.cav.getExtPotential(),2.0))
-                    *intField(k)
-                    *this->mesh.getAreaCells()(k);
+                    *intField(l)
+                    *this->mesh.getAreaCells()(l);
         }
         this->scatMat(j,i) *= 0.5*datum<double>::i*pow(this->k,2.0);
         this->scatMat(j,i) += ((mp==m) ? 1.0 : 0.0);

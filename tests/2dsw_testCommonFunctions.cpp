@@ -24,8 +24,11 @@ using namespace BD_SWORD;
 typedef arma::cx_mat (*f_ptr)(std::complex<double>);
 arma::cx_mat CosZ(std::complex<double> z)
 {
-  arma::cx_mat result(1,1);
+  arma::cx_mat result(2,2);
   result(0,0) = cos(z);
+  result(0,1) = z*z;
+  result(1,0) = atan(z);
+  result(1,1) = exp(z);
   return result;
 }
 
@@ -60,5 +63,6 @@ int main(int argc, char* argv[])
 
   std::complex<double> pole = polesMatrix<std::complex<double>, f_ptr>(&OneOverZ, 2.0);
   std::cout << pole << std::endl;
+
   return 0;
 }
