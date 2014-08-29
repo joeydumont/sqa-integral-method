@@ -96,6 +96,13 @@ int main(int argc, char* argv[])
 
   // TM pol.
   BDSword_TM<double> bdsword(1.0, 25, meshCav);
+
+  /*! Computation of the kernel and its roots. */
+  arma::cx_mat kernelP = bdsword(1.0);
+  std::complex<double> root = rootsMatrix<std::complex<double>, BDSword_TM<double>&>(bdsword, 1.0, 0.1);
+
+  /*! Computation of the scattering matrix and derivative.
+
   arma::cx_vec test = bdsword.computeInteriorField<func_ptr>(besselJ0);
   arma::abs(test).eval().save("2dsw_testSword.dat", arma::raw_ascii);
   arma::cx_mat scatMat = bdsword.computeScatteringMatrix(1.0);
@@ -118,5 +125,7 @@ int main(int argc, char* argv[])
   //BDSword_TE_const<double> bdswordTE(meshCav, 1.0);
   //arma::cx_vec intFieldTE = bdswordTE.computeInteriorField<arma_ptr>(gradBesselJ0);
   //arma::abs(intFieldTE).eval().save("2dsw_testSword_te.dat", arma::raw_ascii);
+  */
+
   return 0;
 }

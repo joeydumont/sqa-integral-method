@@ -63,7 +63,7 @@ public:
 
   arma::cx_mat operator()(std::complex<double> _k)
   {
-    return computeScatteringMatrix(_k);
+    return getTransferMatrix(_k);
   }
 
   arma::cx_mat computeScatteringMatrix(std::complex<double> _k, unsigned int _Mmax=25)
@@ -108,6 +108,21 @@ public:
     delete eig;
     return this->scatMat;
   } // computeScatteringMatrix()
+
+  arma::cx_mat getTransferMatrix(std::complex<double> _k = 0.0)
+  {
+    // Verify default value.
+    if (_k != 0.0)
+    {
+      this->k=_k;
+    }
+
+    // We evaluate the kernel of the integral equation.
+    arma::cx_mat kernel = evaluateKernel(this->mesh.getCenterPositions(),
+                                         this->mesh.getAreaCells());
+
+    return arma::eye<arma::cx_mat>(this->mesh.getCenterPositions().n_rows,this->mesh.getCenterPositions().n_rows)+kernel;
+  } // getTransferMatrix()
 
 protected:
   /*! Computes the kernel of the linear equation.

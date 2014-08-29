@@ -115,8 +115,10 @@ arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<d
       }
 
       // If higher order is worse by a significant factor, we quit.
-      if (arma::norm(tableauNew.slice(i)-tableauOld.slice(i-1)) >= safe*err
-        ||err <= tol) break;
+      if (
+          arma::norm(tableauNew.slice(i)-tableauOld.slice(i-1)) >= safe*err
+          ||err <= tol
+        ) break;
 
 
       // Bookkeeping for next iteration.
@@ -129,9 +131,10 @@ arma::Mat<mat_type> matrixComplexDerivative(func_type func, const std::complex<d
 
 /*! This function finds the poles of a matrix. We use Newton's method 
  * to compute the roots of the determinant function.
- *    @param[in] 
- *    @param[in]
- *    @param[in]
+ *    @param[in] matrix Functor to evaluate the matrix.
+ *    @param[in] pole Initial guess for the pole.
+ *    @param[in] h Initial value for the stepsize in the derivative. 
+ *    @param[in] tol Tolerance on the value of the pole.
  *    @retval poleMatrix A pole of the matrix. */
 template <class mat_type, class func_type>
 std::complex<double> polesMatrix(func_type matrix, std::complex<double> pole, const double h = 0.1, const double tol = 1.0e-5)
@@ -164,7 +167,47 @@ std::complex<double> polesMatrix(func_type matrix, std::complex<double> pole, co
   }
 
   return pole;
-}
+} // polesMatrix()
+
+/*! This function finds the zeros of a matrix. We use Newton's method 
+ * to compute the roots of the determinantal equation. 
+ *    @param[in] matrix Functor to evaluate the matrix.
+ *    @param[in] root Initial guess for the root of the matrix. 
+ *    @param[in] h Initial guess for the stepsize of the derivative.
+ *    @param[in] tol Tolerance on the value of the root.
+ *    @retval rootsMatrix A root of the matrix. */
+template <class mat_type, class func_type>
+std::complex<double> rootsMatrix(func_type matrix, std::complex<double> root, const double h = 0.1, const double tol = 1.0e-5)
+{
+  // We compute the error.
+  double errNew = std::numeric_limits<double>::max();
+  double errOld(errNew);
+  double safe = 2.0;
+  std::complex<double> rootNew = root;
+
+  while (errOld>=tol)
+  {
+    // We compute the matrix inverse and derivative.
+    arma::Mat<mat_type> i_mat = arma::inv(matrix(root));
+    arma::Mat<mat_type> d_mat = matrixComplexDerivative<mat_type, func_type>(matrix, root, h);
+
+    // We compute the new root.
+    rootNew = root - 1.0/arma::trace(i_mat*d_mat);
+    errNew = std::fabs(rootNew-root);
+
+    if (errNew > safe*errOld)
+    {
+      break;
+    }
+
+    // Bookkeeping
+    errOld = errNew;
+    root = rootNew;
+    std::cout << root << std::endl;
+  }
+
+  return root;
+} // rootsMatrix()
 
 } // namespace BD_SWORD
 
