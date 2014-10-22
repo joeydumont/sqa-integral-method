@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 2.8)
 set (CMAKE_INSTALL_PREFIX /usr/)
 
 # Compiler config
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=c++11 -Wall -march=native")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=c++11 -Wall -mavx2 -march=native")
 
 # Included files
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)

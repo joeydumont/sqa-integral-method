@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
   //std::cout << polesMatrix<std::complex<double>, testMatrix>(testMatrixPole, 1.0) << std::endl; 
   // We write this in a file. 
   std::ofstream results;
-  results.open("convergence.dat", std::ios::app);
+  results.open("convergence-avx2.dat", std::ios::app);
   results.setf(std::ios::scientific);
   results.precision(15);
   results.put(' ');
